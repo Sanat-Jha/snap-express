@@ -1,0 +1,158 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Face Swap</title>
+    <link rel="stylesheet" href="{% static 'css/take_photo.css' %}">
+</head>
+<body>
+    <a href="/choose_template" class="back-button">
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M10.5 19.5L3 12m0 0l7.5-7.5M3 12h18" />
+        </svg>
+    </a>
+    <div class="container">
+        <!-- Template Image -->
+        <div class="image-section">
+            <img id="templateImage" src="{{templateimage}}" alt="Template Image" class="image">
+        </div>
+
+        <!-- Camera and Preview -->
+        <div class="camera-section">
+            <button id="openCameraButton">Open Camera</button>
+            <video id="cameraStream" class="hidden" autoplay></video>
+            <canvas id="canvas" class="hidden"></canvas>
+            <img id="capturedImage" class="preview hidden" alt="Captured Image">
+            <button id="captureButton" class="hidden">Capture</button>
+        </div>
+
+<!-- Face Swap Section -->
+<div class="swap-section">
+    <div id="loadingSpinner" class="hidden"></div>
+    <div class="button-group">
+        <button id="swapFacesButton" class="hidden">Swap Faces</button>
+        <button id="CaptureAgain" class="hidden">Capture Again</button>
+    </div>
+</div>
+    </div>
+
+    <script>
+document.addEventListener("DOMContentLoaded", function() {
+    // DOM elements
+    const openCameraButton = document.getElementById('openCameraButton');
+    const reopenCameraButton = document.getElementById('CaptureAgain');
+    const captureButton = document.getElementById('captureButton');
+    const cameraStream = document.getElementById('cameraStream');
+    const canvas = document.getElementById('canvas');
+    const capturedImage = document.getElementById('capturedImage');
+    const swapFacesButton = document.getElementById('swapFacesButton');
+    const loadingSpinner = document.getElementById('loadingSpinner');
+    const templateImage = document.getElementById('templateImage');
+
+    let currentStream = null;
+
+    // Function to stop current stream
+    function stopCurrentStream() {
+        if (currentStream) {
+            currentStream.getTracks().forEach(track => track.stop());
+        }
+    }
+
+    // Function to start camera
+    function startCamera() {
+        stopCurrentStream(); // Stop any existing stream
+        
+        return navigator.mediaDevices.getUserMedia({ video: true })
+            .then(function(stream) {
+                cameraStream.srcObject = stream;
+                cameraStream.classList.remove('hidden');
+                captureButton.classList.remove('hidden');
+                openCameraButton.classList.add('hidden');
+                currentStream = stream;
+            })
+            .catch(function(error) {
+                console.error('Error accessing the camera: ', error);
+                alert('Unable to access camera. Please make sure you have granted camera permissions.');
+            });
+    }
+
+    // Open camera button click
+    openCameraButton.addEventListener('click', startCamera);
+
+    // Reopen camera button click
+    reopenCameraButton.addEventListener('click', function() {
+        capturedImage.classList.add('hidden');
+        swapFacesButton.classList.add('hidden');
+        reopenCameraButton.classList.add('hidden');
+        startCamera();
+    });
+
+    // Capture button click
+    captureButton.addEventListener('click', function() {
+        const context = canvas.getContext('2d');
+        canvas.width = cameraStream.videoWidth;
+        canvas.height = cameraStream.videoHeight;
+        context.drawImage(cameraStream, 0, 0, canvas.width, canvas.height);
+
+        const imageUrl = canvas.toDataURL('image/jpeg');
+        capturedImage.src = imageUrl;
+        capturedImage.classList.remove('hidden');
+
+        // Stop the camera stream
+        stopCurrentStream();
+
+        // Hide video and show appropriate buttons
+        cameraStream.classList.add('hidden');
+        captureButton.classList.add('hidden');
+        swapFacesButton.classList.remove('hidden');
+        reopenCameraButton.classList.remove('hidden');
+    });
+
+    // Swap faces button click
+    swapFacesButton.addEventListener('click', function() {
+        loadingSpinner.classList.remove('hidden');
+        
+        fetch('/api/swapface', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                templateid: '{{templateid}}',
+                capturedimage: capturedImage.src
+            })
+        })
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Network response was not ok');
+            }
+            return response.json();
+        })
+        .then(data => {
+            loadingSpinner.classList.add('hidden');
+            
+            const form = document.createElement('form');
+            form.method = 'POST';
+            form.action = '/result';
+
+            const input = document.createElement('input');
+            input.type = 'hidden';
+            input.name = 'image_url';
+            input.value = data.image_url;
+            form.appendChild(input);
+
+            document.body.appendChild(form);
+            form.submit();
+        })
+        .catch(error => {
+            console.error('Error during face swap: ', error);
+            loadingSpinner.classList.add('hidden');
+            alert('Error processing image. Please try again.');
+        });
+    });
+});
+    </script>
+</body>
+</html>

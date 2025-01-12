@@ -1,0 +1,43 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SnapExpress</title>
+  <link rel="stylesheet" href="{% static 'css/home.css' %}">
+</head>
+<body>
+
+  <div class="body-image">
+    <img src="{% static 'img/home.png' %}" alt="home" class="home-image">
+  </div>
+  <script>
+    // Function to handle click/tap events based on position
+    function handleClickOrTap(e) {
+      // Get the vertical position of the click (or touch)
+      let clickY = e.clientY || e.touches[0].clientY;  // For mouse or touch
+
+      // Get the height of the viewport (body)
+      let viewportHeight = window.innerHeight;
+
+      // Check if the click/tap is in the top 10% or the bottom 90%
+      if (clickY < viewportHeight * 0.1) {
+        window.location.href = '/manage_events';  // Redirect to manage_events if top 10%
+      } else {
+        window.location.href = '/choose_template';  // Redirect to choose_template if bottom 90%
+      }
+    }
+
+    // Mouse click event
+    document.body.addEventListener('click', function(e) {
+      handleClickOrTap(e);  // Call the function for mouse click
+    });
+
+    // Touch tap event
+    document.body.addEventListener('touchend', function(e) {
+      handleClickOrTap(e);  // Call the function for touch tap
+    });
+  </script>
+</body>
+</html>

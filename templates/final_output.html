@@ -1,0 +1,371 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Snap Express</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <!-- <script src="https://cdnjs.cloudflare.com/ajax/libs/qrious/4.0.2/qrious.min.js"></script> -->
+    <script src="{% static 'js/qrious.min.js' %}"></script>
+
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap');
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background: linear-gradient(135deg, #000000 0%, #203263 100%);
+            font-family: 'Poppins', sans-serif;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .container {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 2rem;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            width: 90%;
+            max-width: 1200px;
+            position: relative;
+            overflow: hidden;
+            text-align: center;
+        }
+
+        .container::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(45deg, 
+                rgba(255, 255, 255, 0.1) 0%, 
+                rgba(255, 255, 255, 0.05) 100%
+            );
+            pointer-events: none;
+        }
+
+        h1 {
+            color: #fff;
+            font-size: clamp(2rem, 5vw, 3.5rem);
+            font-weight: 600;
+            margin-bottom: 2rem;
+            letter-spacing: 2px;
+            position: relative;
+            text-align: center;
+        }
+
+        h1::after {
+            content: '';
+            position: absolute;
+            bottom: -10px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 60px;
+            height: 4px;
+            background: #3498db;
+            border-radius: 2px;
+        }
+
+        .loader {
+            width: 60px;
+            height: 60px;
+            border: 4px solid rgba(255, 255, 255, 0.1);
+            border-left-color: #3498db;
+            border-radius: 50%;
+            animation: spin 1s cubic-bezier(0.68, -0.55, 0.265, 1.55) infinite;
+            margin: 2rem auto;
+            transition: opacity 0.3s ease;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .image-container {
+            position: relative;
+            margin: 2rem auto;
+            max-width: 100%;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            min-height: 200px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .error-message {
+            color: #ff6b6b;
+            text-align: center;
+            padding: 20px;
+            display: none;
+            font-size: 1.1rem;
+        }
+
+        img {
+            max-width: 100%;
+            height: auto;
+            display: block;
+            opacity: 0;
+            transition: opacity 0.5s ease, transform 0.5s ease;
+            transform: scale(0.98);
+        }
+
+        img.loaded {
+            opacity: 1;
+            transform: scale(1);
+        }
+
+        .back-to-home {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            color: #fff;
+            text-decoration: none;
+            font-weight: 500;
+            padding: 12px 24px;
+            background: rgba(52, 152, 219, 0.2);
+            border-radius: 30px;
+            transition: all 0.3s ease;
+            margin-top: 2rem;
+        }
+
+        .back-to-home:hover {
+            background: rgba(52, 152, 219, 0.4);
+            transform: translateY(-2px);
+        }
+
+        .back-to-home i {
+            font-size: 1.2em;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 1.5rem;
+            }
+
+            h1 {
+                font-size: 2rem;
+                margin-bottom: 1.5rem;
+            }
+        }
+        .button-container {
+    display: flex;
+    justify-content: center;
+    gap: 1rem;
+    margin-top: 2rem;
+}
+
+.print-button {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    color: #fff;
+    text-decoration: none;
+    font-weight: 500;
+    padding: 12px 24px;
+    background: rgba(46, 204, 113, 0.2);
+    border: none;
+    border-radius: 30px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-family: 'Poppins', sans-serif;
+}
+
+.print-button:hover {
+    background: rgba(46, 204, 113, 0.4);
+    transform: translateY(-2px);
+}
+
+.print-button i {
+    font-size: 1.2em;
+}
+
+@media print {
+    body {
+        background: none;
+        padding: 0;
+        display: block;
+    }
+
+    .container {
+        background: none;
+        box-shadow: none;
+        padding: 0;
+    }
+
+    .container::before {
+        display: none;
+    }
+
+    h1, .button-container, .loader, .error-message {
+        display: none !important;
+    }
+
+    .image-container {
+        box-shadow: none;
+        margin: 0;
+    }
+
+    img {
+        max-width: 100%;
+        height: auto;
+    }
+}
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Snap Express</h1>
+        <div class="loader" id="loader"></div>
+        <div class="image-container">
+            <img src="{{imageURL}}" alt="Showcased Image" id="image">
+            <div class="error-message" id="error-message">
+                Unable to load image. Please try again later.
+            </div>
+        </div>
+        
+        <div id="qrcode"></div>
+        <div class="button-container">
+            <a href="/" class="back-to-home">
+                <i class="fas fa-arrow-left"></i>
+                Back to Home
+            </a>
+            <button class="print-button" onclick="printImage()">
+                <i class="fas fa-print"></i>
+                Print Image
+            </button>
+        </div>
+
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const loader = document.getElementById('loader');
+            const image = document.getElementById('image');
+            const errorMessage = document.getElementById('error-message');
+            let loadTimeout;
+
+            // Set a timeout to show error message if image takes too long to load
+            loadTimeout = setTimeout(() => {
+                handleImageError();
+            }, 10000); // 10 second timeout
+
+            // Success handler
+            image.addEventListener('load', function() {
+                clearTimeout(loadTimeout);
+                imageLoaded();
+            });
+
+            // Error handler
+            image.addEventListener('error', function() {
+                clearTimeout(loadTimeout);
+                handleImageError();
+            });
+
+            function imageLoaded() {
+                // Fade out loader
+                loader.style.opacity = '0';
+                setTimeout(() => {
+                    loader.style.display = 'none';
+                }, 300);
+                
+                // Show image with animation
+                requestAnimationFrame(() => {
+                    image.classList.add('loaded');
+                });
+            }
+
+            function handleImageError() {
+                // Hide loader and image
+                loader.style.display = 'none';
+                image.style.display = 'none';
+                
+                // Show error message
+                errorMessage.style.display = 'block';
+            }
+
+            // If the image is already cached, the load event might have fired
+            // before we attached the listener
+            if (image.complete) {
+                clearTimeout(loadTimeout);
+                imageLoaded();
+            }
+
+            generateQRCode('https://127.0.0.1:8000' +'{{imageURL}}');
+        });
+
+        function generateQRCode(link) {
+    const qr = new QRious({
+        element: document.createElement('canvas'), // Create a canvas element for QR code
+        value: link, // The link for the QR code
+        size: 200, // Size of the QR code
+        background: '#000', // Background color
+        foreground: '#ffffff' // Foreground color
+    });
+
+    const qrContainer = document.getElementById('qrcode');
+    qrContainer.innerHTML = ''; // Clear previous QR code if any
+    qrContainer.appendChild(qr.element); // Append the generated QR code
+}
+
+        function printImage() {
+    const image = document.getElementById('image');
+    
+    // Create a new window
+    const printWindow = window.open('', '_blank');
+    
+    // Write the HTML content with just the image and necessary styles
+    printWindow.document.write(`
+        <html>
+        <head>
+            <style>
+                body {
+                    margin: 0;
+                    padding: 0;
+                    display: flex;
+                    justify-content: center;
+                    align-items: center;
+                }
+                img {
+                    max-width: 100%;
+                    height: auto;
+                    display: block;
+                }
+                @media print {
+                    @page {
+                        margin: 0;
+                    }
+                    body {
+                        margin: 0;
+                    }
+                    img {
+                        width: 100%;
+                        height: auto;
+                    }
+                }
+            </style>
+        </head>
+        <body>
+            <img src="${image.src}" onload="window.print();window.close()">
+        </body>
+        </html>
+    `);
+    
+    printWindow.document.close();
+}
+        </script>
+</body>
+</html>

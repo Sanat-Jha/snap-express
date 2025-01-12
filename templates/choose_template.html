@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Choose Template</title>
+    <style>
+                @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap');
+
+/* Container styles */
+body{
+    margin:0;
+    padding:0;
+    font-family: 'Poppins', sans-serif;
+    background: linear-gradient(135deg, #000000 0%, #203263 100%);
+}
+/* Container styles */
+.container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 2rem;
+    min-height: 100vh;
+    color: #ffffff;
+}
+
+/* Dropdown styles */
+.dropdown {
+    margin-bottom: 3rem;
+    animation: fadeIn 0.8s ease-in-out;
+}
+
+.dropdown label {
+    display: block;
+    margin-bottom: 1rem;
+    font-size: 1.2rem;
+    font-weight: 500;
+    letter-spacing: 0.5px;
+}
+
+.dropdown select {
+    width: 100%;
+    max-width: 400px;
+    padding: 0.8rem 1rem;
+    border: 2px solid white;
+    border-radius: 4px;
+    background-color: black;
+    color: white;
+    font-size: 1rem;
+    cursor: pointer;
+}
+
+
+
+
+/* Grid styles */
+.grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr); /* 3 columns by default */
+    gap: 2rem;
+    opacity: 0;
+    animation: gridFadeIn 1s ease-in-out forwards;
+    animation-delay: 0.3s;
+}
+
+/* Image styles */
+.grid img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;  /* Ensures images are fully visible and scaled with aspect ratio maintained */
+    border-radius: 8px;
+    border: 2px solid transparent;
+    transition: all 0.4s ease;
+    opacity: 0;
+    animation: imageFadeIn 0.8s ease-in-out forwards;
+}
+
+/* Hover effect for images */
+.grid img:hover {
+    transform: scale(1.03);
+    border-color: white;
+    box-shadow: 0 0 20px white;
+}
+
+/* Loading animation for images */
+.grid img.loading {
+    background: linear-gradient(110deg, #000 30%, #1a1a1a 50%, #000 70%);
+    background-size: 200% 100%;
+    animation: loadingShimmer 1.5s infinite linear;
+}
+
+/* Animation keyframes */
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(-20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes gridFadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes imageFadeIn {
+    from {
+        opacity: 0;
+        transform: scale(0.95);
+    }
+    to {
+        opacity: 1;
+        transform: scale(1);
+    }
+}
+
+@keyframes loadingShimmer {
+    to {
+        background-position: -200% 0;
+    }
+}
+
+/* Responsive styles */
+@media screen and (max-width: 1024px) {
+    .grid {
+        grid-template-columns: repeat(2, 1fr); /* 2 columns for medium screens */
+    }
+}
+
+@media screen and (max-width: 768px) {
+    .grid {
+        grid-template-columns: repeat(2, 1fr); /* 2 columns for small screens */
+        gap: 1.5rem;
+    }
+    
+    .grid img {
+        height: auto; /* Ensure image height adjusts to aspect ratio */
+    }
+    
+    .dropdown label {
+        font-size: 1.1rem;
+    }
+    
+    .dropdown select {
+        font-size: 0.9rem;
+        padding: 0.7rem 0.9rem;
+    }
+}
+
+@media screen and (max-width: 480px) {
+    .grid {
+        grid-template-columns: repeat(2, 1fr); /* 2 columns for very small screens */
+        gap: 1rem;
+    }
+    
+    .grid img {
+        height: auto; /* Ensure image height adjusts to aspect ratio */
+    }
+}
+/* Modify the back button styles */
+.back-button {
+    position: absolute;
+    top: 2rem;
+    left: 2rem;
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 0.5rem;
+    z-index: 10; /* Ensure button stays on top */
+}
+
+.back-button svg {
+    width: 24px;
+    height: 24px;
+    stroke: white;
+    transition: transform 0.3s ease;
+}
+
+.back-button:hover svg {
+    transform: translateX(-5px);
+}
+
+.dropdown {
+    margin-left: 4rem; 
+    margin-right: 2rem;
+    margin-bottom: 3rem;
+    margin-top: 1rem;
+    animation: fadeIn 0.8s ease-in-out;
+}
+
+.container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 2rem;
+    min-height: 100vh;
+    color: #ffffff;
+    position: relative; 
+}
+</style>
+
+</head>
+
+<body>
+    <div class="container">
+        <a href="/" class="back-button">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M10.5 19.5L3 12m0 0l7.5-7.5M3 12h18" />
+            </svg>
+        </a>
+
+        <div class="dropdown">
+            <label for="category">Choose a category:</label>
+            <select id="category">
+                <option selected disabled>Choose a category</option>
+                {% for cat in categories %}
+                <option value="{{cat.name}}">{{cat.name}}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="grid" id="templateGrid"></div>
+    </div>
+
+    <script>
+        document.getElementById('category').addEventListener('change', function () {
+            const category = this.value;
+            fetch('/gettemplates', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': '{{ csrf_token }}'
+                },
+                body: JSON.stringify({ category: category })
+            })
+                .then(response => response.json())
+                .then(data => {
+                    const grid = document.getElementById('templateGrid');
+                    grid.innerHTML = '';
+                    data.templates.forEach(template => {
+                        const img = document.createElement('img');
+                        img.src = template[1];
+
+                        // Add click event listener to open the new page with the templateId
+                        img.addEventListener('click', () => {
+                            window.location.href = `/take_photo/${template[0]}`;
+                        });
+
+                        grid.appendChild(img);
+                    });
+
+                });
+        });
+    </script>
+</body>
+
+</html>
