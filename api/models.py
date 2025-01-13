@@ -10,7 +10,7 @@ from django.conf import settings
 def event_image_upload_to(instance, filename):
     # Use the event name in the file path dynamically
     event_name = instance.event.name
-    return os.path.join('gallery', event_name, filename)
+    return os.path.join('gallery', event_name.replace(' ', '_'), filename)
 # Create your models here.
 class Event(models.Model):
     name = models.CharField(max_length=100, unique=True)
