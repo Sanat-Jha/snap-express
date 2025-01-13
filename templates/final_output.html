@@ -304,13 +304,13 @@
                 imageLoaded();
             }
 
-            generateQRCode('https://127.0.0.1:8000' +'{{imageURL}}');
+            generateQRCode('https://snanpexpress.pythonanywhere.com' +'{{imageURL}}');
         });
 
         function generateQRCode(link) {
     const qr = new QRious({
-        element: document.createElement('canvas'), // Create a canvas element for QR code
-        value: link, // The link for the QR code
+        element: document.createElement('canvas'), 
+        value: link, 
         size: 200, // Size of the QR code
         background: '#000', // Background color
         foreground: '#ffffff' // Foreground color
