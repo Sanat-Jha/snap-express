@@ -83,7 +83,6 @@ def swapface(request):
                 ContentFile(response.content),
                 save=True
             )
-            print("image saved")
             return JsonResponse({"image_url": event_image.image.url})
             
         except requests.RequestException as e:
@@ -109,7 +108,6 @@ def gettemplates(request):
     data = json.loads(request.body)
     categoryname = data.get('category')  
     category = TemplateCategory.objects.get(name = categoryname)
-    print(category)
     templates = Template.objects.filter(category=category)
     templateslist = [[template.id, template.image.url] for template in templates]
     return JsonResponse({"templates": templateslist})
