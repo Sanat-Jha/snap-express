@@ -1,0 +1,22 @@
+body{
+    margin: 0;
+    padding: 0;
+    background: linear-gradient(135deg, #000000 0%, #203263 100%);
+    font-family: 'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif;
+}
+
+
+.body-image {
+    width: 100vw;
+    height: 100vh;
+    overflow: hidden;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.home-image {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}

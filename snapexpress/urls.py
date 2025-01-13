@@ -33,3 +33,5 @@ urlpatterns = [
     path("change_current_event",change_current_event,name='change_current_event'),
     path("fetch_event_images",fetch_event_images,name='fetch_event_images'),
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+
+urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
