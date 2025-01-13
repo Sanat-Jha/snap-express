@@ -1,4 +1,5 @@
 import json
+from django.conf import settings
 from django.shortcuts import render
 from django.http import HttpResponse,JsonResponse
 from django.views.decorators.csrf import csrf_exempt
@@ -51,11 +52,18 @@ def swapface(request):
             
             current_event = Event.objects.get(current=True)
             
+            # Replace spaces with underscores in directory name
+            event_name_clean = current_event.name.replace(" ", "_")
+            base_dir = os.path.join(settings.MEDIA_ROOT, f"gallery/{event_name_clean}")
+            
+            # Create the directory if it doesn't exist
+            os.makedirs(base_dir, exist_ok=True)
+            
             # Get the count of existing images with same event and template
             base_name = f"swapped_face_{current_event.id}_{templateid}"
             existing_images = EventImage.objects.filter(
                 event=current_event,
-                image__startswith=f'gallery/{current_event.name}/{base_name}'
+                image__startswith=f'gallery/{event_name_clean}/{base_name}'
             )
             
             # Find the next available number
@@ -74,12 +82,13 @@ def swapface(request):
             
             # Create the new image name with the next available number
             image_name = f"{base_name}_{next_number}.jpg"
+            full_path = os.path.join(base_dir, image_name)
             
-            # Create EventImage with downloaded content
+            # Save the file to the directory
             event_image = EventImage()
             event_image.event = current_event
             event_image.image.save(
-                image_name,
+                os.path.relpath(full_path, settings.MEDIA_ROOT),
                 ContentFile(response.content),
                 save=True
             )
@@ -87,7 +96,7 @@ def swapface(request):
             
         except requests.RequestException as e:
             print(e)
-            return JsonResponse({"image_url": swapimageurl})
+            return JsonResponse({"error": str(e), "image_url": swapimageurl}, status=500)
 
 
 def choose_template(request):
