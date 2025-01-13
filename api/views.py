@@ -86,7 +86,7 @@ def swapface(request):
             return JsonResponse({"image_url": event_image.image.url})
             
         except requests.RequestException as e:
-            print("image not saved  ")
+            print(e)
             return JsonResponse({"image_url": swapimageurl})
 
 
